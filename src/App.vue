@@ -1,19 +1,20 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <EventList>\</EventList>
+    <!-- Add this line for router navigation or other components -->
+    <router-view></router-view>  <!-- This renders the matched route's component -->
   </div>
 </template>
 
 <script>
-import EventList from './components/EventList.vue';
+
+
+
 
 export default {
   name: 'App',
   components: {
-   
-    EventList
+
   }
 }
 </script>

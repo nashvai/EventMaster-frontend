@@ -32,20 +32,50 @@ export default {
   data() {
     return {
       events: [],
-      error: '',
+      error: null,
     };
   },
-  mounted() {
-    this.$axios.get('events/')
-        .then((response) => {
-          this.events = response.data;
-        })
-        .catch((error) => {
-          this.error = 'Failed to load events: ' + error.message;
-          console.error(error);
-        });
+  created() {
+    this.fetchEvents();
   },
-};
+  methods: {
+    async fetchEvents() {
+      try {
+        const response = await this.$axios.get('events/');
+        this.events = response.data;
+
+        // Now, fetch sub-events and components for each event
+        for (let event of this.events) {
+          await this.fetchSubEvents(event);
+        }
+      } catch (error) {
+        console.error("There was an error fetching events:", error);
+        this.error = "Failed to load events.";
+      }
+    },
+    async fetchSubEvents(event) {
+      try {
+        const response = await this.$axios.get(`events/${event.id}/sub-events/`);
+        event.sub_events = response.data;
+
+        // Fetch components for each sub-event
+        for (let subEvent of event.sub_events) {
+          await this.fetchComponents(event.id, subEvent);
+        }
+      } catch (error) {
+        console.error("Error fetching sub-events for event", event.id, error);
+      }
+    },
+    async fetchComponents(eventId, subEvent) {
+      try {
+        const response = await this.$axios.get(`events/${eventId}/sub-events/${subEvent.id}/components/`);
+        subEvent.components = response.data;
+      } catch (error) {
+        console.error("Error fetching components for sub-event", subEvent.id, error);
+      }
+    },
+  }
+}
 </script>
 
 <style scoped>
